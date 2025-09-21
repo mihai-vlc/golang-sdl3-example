@@ -46,7 +46,7 @@ func (t *Text) Draw(ctx *context.DrawContext) {
 }
 
 func (t *Text) createTexture(renderer *sdl.Renderer, theme theme.Theme) {
-	font, _ := t.resourceManager.GetFont(theme.Typography.FontFamily, theme.Typography.FontSizeL)
+	font, _ := t.resourceManager.GetFont(theme.Typography.FontFamily, theme.Typography.FontSizeXL)
 	var surface = ttf.RenderTextBlended(font, t.value, 0, theme.Colors.TextPrimary)
 	t.texture = sdl.CreateTextureFromSurface(renderer, surface)
 	sdl.DestroySurface(surface)

@@ -9,7 +9,7 @@ func main() {
 		panic(err.Error())
 	}
 
-	defer app.Destroy()
+	app.Run() // Main loop
 
-	app.Run()
+	app.Destroy()
 }

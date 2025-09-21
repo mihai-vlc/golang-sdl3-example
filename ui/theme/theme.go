@@ -33,6 +33,7 @@ type ThemeTypography struct {
 	FontSizeS  float32
 	FontSizeM  float32
 	FontSizeL  float32
+	FontSizeXL float32
 }
 
 type Theme struct {
@@ -66,6 +67,7 @@ var DefaultTheme = Theme{
 		FontSizeS:  20,
 		FontSizeM:  40,
 		FontSizeL:  60,
+		FontSizeXL: 120,
 	},
 }
 

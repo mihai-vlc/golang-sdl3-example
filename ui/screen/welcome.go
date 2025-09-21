@@ -11,7 +11,7 @@ type WelcomeScreen struct {
 func NewWelcomeScreen() *WelcomeScreen {
 	var s = &WelcomeScreen{}
 
-	var msg = component.NewText("Hello Moto")
+	var msg = component.NewText("Welcome!")
 	s.AddChild(msg)
 
 	return s
