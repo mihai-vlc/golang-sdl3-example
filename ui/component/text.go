@@ -4,6 +4,7 @@ import (
 	"myapp/ui/context"
 	"myapp/ui/resource"
 	"myapp/ui/theme"
+	"time"
 
 	"github.com/jupiterrider/purego-sdl3/sdl"
 	"github.com/jupiterrider/purego-sdl3/ttf"
@@ -16,6 +17,7 @@ type Text struct {
 	texture         *sdl.Texture
 	destination     *sdl.FRect
 	value           string
+	renderedValue   string
 }
 
 func NewText(value string) *Text {
@@ -31,7 +33,9 @@ func (t *Text) Init(ctx *context.InitContext) error {
 }
 
 func (t *Text) Draw(ctx *context.DrawContext) {
-	if t.texture == nil {
+	t.value = time.Now().Format(time.RFC850)
+
+	if t.texture == nil || t.value != t.renderedValue {
 		t.createTexture(ctx.Renderer, ctx.Theme)
 	}
 
@@ -46,8 +50,13 @@ func (t *Text) Draw(ctx *context.DrawContext) {
 }
 
 func (t *Text) createTexture(renderer *sdl.Renderer, theme theme.Theme) {
-	font, _ := t.resourceManager.GetFont(theme.Typography.FontFamily, theme.Typography.FontSizeXL)
+	if t.texture != nil {
+		sdl.DestroyTexture(t.texture)
+	}
+
+	font, _ := t.resourceManager.GetFont(theme.Typography.FontFamily, theme.Typography.FontSizeL)
 	var surface = ttf.RenderTextBlended(font, t.value, 0, theme.Colors.TextPrimary)
 	t.texture = sdl.CreateTextureFromSurface(renderer, surface)
 	sdl.DestroySurface(surface)
+	t.renderedValue = t.value
 }

@@ -1,6 +1,8 @@
 package main
 
-import "myapp/ui"
+import (
+	"myapp/ui"
+)
 
 func main() {
 	app := ui.NewApp()
