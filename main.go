@@ -1,49 +1,31 @@
 package main
 
-import (
-	"fmt"
-	"log"
-	"time"
-
-	"golang.design/x/hotkey"
-
-	"github.com/jupiterrider/purego-sdl3/sdl"
-	"github.com/jupiterrider/purego-sdl3/ttf"
-)
+import "myapp/ui"
 
 func main() {
-	globalHotKey := registerGlobalHotkey()
+	app := ui.NewApp()
+
+	if err := app.Init(); err != nil {
+		panic(err.Error())
+	}
+
+	defer app.Destroy()
+
+	app.Run()
+}
+
+/*
+func main() {
+	registerGlobalHotkey()
 	isGlobalHotkeyPressed := false
 
-	go func() {
-		for {
-			select {
-			case <-globalHotKey.Keydown():
-				t := time.Now()
-				fmt.Printf("keydown %s\n", t.Format(time.RFC850))
-			case <-globalHotKey.Keyup():
-				t := time.Now()
-				fmt.Printf("keyup %s\n", t.Format(time.RFC850))
-			}
-		}
-	}()
+	app := ui.NewApp()
 
-	if !sdl.SetHint(sdl.HintRenderVSync, "1") {
-		panic(sdl.GetError())
+	if err := app.Init(); err != nil {
+		panic(err.Error())
 	}
 
-	defer sdl.Quit()
-	if !sdl.Init(sdl.InitVideo) {
-		panic(sdl.GetError())
-	}
-
-	var window *sdl.Window
-	var renderer *sdl.Renderer
-	if !sdl.CreateWindowAndRenderer("Hello, World!", 1280, 720, sdl.WindowResizable, &window, &renderer) {
-		panic(sdl.GetError())
-	}
-	defer sdl.DestroyRenderer(renderer)
-	defer sdl.DestroyWindow(window)
+	defer app.Destroy()
 
 	if !ttf.Init() {
 		panic(sdl.GetError())
@@ -116,18 +98,4 @@ func main() {
 		sdl.RenderPresent(renderer)
 	}
 }
-
-func registerGlobalHotkey() *hotkey.Hotkey {
-	hk := hotkey.New([]hotkey.Modifier{hotkey.ModCtrl, hotkey.ModAlt}, hotkey.KeyD)
-	err := hk.Register()
-	if err != nil {
-		log.Fatalf("hotkey: failed to register hotkey: %v", err)
-		return nil
-	}
-
-	log.Printf("hotkey: %v is registered\n", hk)
-	return hk
-
-	// hk.Unregister()
-	// log.Printf("hotkey: %v is unregistered\n", hk)
-}
+*/
