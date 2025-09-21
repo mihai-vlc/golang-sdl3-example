@@ -7,7 +7,4 @@ require (
 	golang.design/x/hotkey v0.4.1
 )
 
-require (
-	github.com/ebitengine/purego v0.8.3 // indirect
-	golang.design/x/mainthread v0.3.0 // indirect
-)
+require github.com/ebitengine/purego v0.8.3 // indirect
