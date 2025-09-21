@@ -8,6 +8,7 @@ import (
 	"golang.design/x/hotkey"
 
 	"github.com/jupiterrider/purego-sdl3/sdl"
+	"github.com/jupiterrider/purego-sdl3/ttf"
 )
 
 func main() {
@@ -44,6 +45,29 @@ func main() {
 	defer sdl.DestroyRenderer(renderer)
 	defer sdl.DestroyWindow(window)
 
+	if !ttf.Init() {
+		panic(sdl.GetError())
+	}
+
+	font := ttf.OpenFont("resources/Roboto-Light.ttf", 80)
+
+	if font == nil {
+		panic(sdl.GetError())
+	}
+	defer ttf.CloseFont(font)
+
+	textColor := sdl.Color{R: 255, G: 255, B: 255, A: 255}
+	helloSurface := ttf.RenderTextBlended(font, "Hello There", 0, textColor)
+	if helloSurface == nil {
+		panic(sdl.GetError())
+	}
+	defer sdl.DestroySurface(helloSurface)
+
+	helloTexture := sdl.CreateTextureFromSurface(renderer, helloSurface)
+	if helloTexture == nil {
+		panic(sdl.GetError())
+	}
+
 	var running = true
 
 	sdl.StartTextInput(window)
@@ -62,8 +86,8 @@ func main() {
 			fmt.Println(text.Text())
 
 		case sdl.EventTextEditing:
-			fmt.Println(event.Edit().Start)
-			fmt.Println(event.Edit().Length)
+			var edit = event.Edit()
+			fmt.Println(edit.Text())
 
 		case sdl.EventKeyDown:
 			if event.Key().Scancode == sdl.ScancodeEscape {
@@ -75,14 +99,19 @@ func main() {
 			fmt.Println("pressed global hotkey")
 		}
 
+		var helloTextLocation = &sdl.FRect{}
+		var w int32
+		var h int32
+		sdl.GetRenderOutputSize(renderer, &w, &h)
+		sdl.GetTextureSize(helloTexture, &helloTextLocation.W, &helloTextLocation.H)
+		helloTextLocation.X = (float32(w) - helloTextLocation.W) / 2
+		helloTextLocation.Y = (float32(h) - helloTextLocation.H) / 2
+
 		sdl.SetRenderDrawColor(renderer, 100, 150, 200, 255)
 		sdl.RenderClear(renderer)
 
 		sdl.SetRenderDrawColor(renderer, 255, 255, 255, 255)
-		sdl.RenderDebugText(renderer, 100, 100, "Hello")
-
-		var rect = &sdl.FRect{X: 0, Y: 0, W: 100, H: 100}
-		sdl.RenderRect(renderer, rect)
+		sdl.RenderTexture(renderer, helloTexture, nil, helloTextLocation)
 
 		sdl.RenderPresent(renderer)
 	}
