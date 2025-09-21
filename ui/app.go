@@ -2,22 +2,32 @@ package ui
 
 import (
 	"fmt"
+	"myapp/ui/component"
+	"myapp/ui/context"
+	"myapp/ui/resource"
 	"myapp/ui/screen"
+	"myapp/ui/theme"
 
 	"github.com/jupiterrider/purego-sdl3/sdl"
 )
 
 type App struct {
-	window   *sdl.Window
-	renderer *sdl.Renderer
-	running  bool
+	running bool
 
-	activeScreen screen.Screen
+	activeScreen component.Component
+	drawContext  *context.DrawContext
+	initContext  *context.InitContext
 }
 
 func NewApp() *App {
 	return &App{
 		activeScreen: screen.NewWelcomeScreen(),
+		drawContext: &context.DrawContext{
+			Theme: theme.DefaultTheme,
+		},
+		initContext: &context.InitContext{
+			Resource: resource.NewResourceManager(),
+		},
 	}
 }
 
@@ -30,12 +40,15 @@ func (a *App) Init() error {
 		return fmt.Errorf("error initializing video: %s", sdl.GetError())
 	}
 
-	if !sdl.CreateWindowAndRenderer("Hello, World!", 1280, 720, sdl.WindowResizable, &a.window, &a.renderer) {
+	if !sdl.CreateWindowAndRenderer("My App", 1280, 720, sdl.WindowResizable, &a.drawContext.Window, &a.drawContext.Renderer) {
 		return fmt.Errorf("error creating window: %s", sdl.GetError())
 	}
 
-	a.activeScreen.Init()
+	if err := a.initContext.Resource.Init(); err != nil {
+		return err
+	}
 
+	a.activeScreen.Init(a.initContext)
 	return nil
 }
 
@@ -48,15 +61,14 @@ func (a *App) Run() {
 		sdl.WaitEventTimeout(&event, 1000)
 		a.input(event)
 
-		var dt = float32(sdl.GetTicks()-lastTick) / 1000.0
-		a.update(dt)
+		a.drawContext.Dt = float32(sdl.GetTicks()-lastTick) / 1000.0
 		a.draw()
 	}
 }
 
 func (a *App) Destroy() {
-	sdl.DestroyWindow(a.window)
-	sdl.DestroyRenderer(a.renderer)
+	sdl.DestroyWindow(a.drawContext.Window)
+	sdl.DestroyRenderer(a.drawContext.Renderer)
 	sdl.Quit()
 }
 
@@ -69,10 +81,7 @@ func (a *App) input(event sdl.Event) {
 	a.activeScreen.Input(event)
 }
 
-func (a *App) update(dt float32) {
-	a.activeScreen.Update(dt)
-}
-
 func (a *App) draw() {
-	a.activeScreen.Draw(a.renderer)
+	a.activeScreen.Draw(a.drawContext)
+	sdl.RenderPresent(a.drawContext.Renderer)
 }
